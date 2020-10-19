@@ -1,12 +1,12 @@
 import networkx as nx
 import matplotlib.pyplot as plt
-
+from collections import deque
+from typing import List, Set
 
 G = nx.Graph()
 
 # Add nodes to graph
 nodes = [
-    "start",
     "SportsComplex",
     "Siwaka",
     "Ph.1A",
@@ -21,7 +21,6 @@ nodes = [
 G.add_nodes_from(nodes)
 
 # Position the nodes accordingly
-G.nodes["start"]["pos"] = [-1, 0]
 G.nodes["SportsComplex"]["pos"] = (0, 0)
 G.nodes["Siwaka"]["pos"] = (2, 0)
 G.nodes["Ph.1A"]["pos"] = (4, 0)
@@ -37,7 +36,6 @@ node_pos = nx.get_node_attributes(G, "pos")
 
 # Add edges to graph
 straight_edges = [
-    ("start", "SportsComplex"),
     ("SportsComplex", "Siwaka", {"weight": 450, "name": "UnkRoad"}),
     ("Siwaka", "Ph.1A", {"weight": 10, "name": "SangaleRd"}),
     ("Ph.1A", "Ph.1B", {"weight": 100, "name": "ParkingWalkWay"}),
@@ -104,11 +102,51 @@ for edge in curved_in_edges:
 
 path_names = nx.get_edge_attributes(G, "name")
 
-nx.draw_networkx(G, node_pos, node_size=300, edgelist=straight_edges)
-# nx.draw_networkx_edge_labels(
-#     G, node_pos, edge_labels=path_names, verticalalignment="bottom"
-# )
+
+def bfs(
+    G: nx.Graph, destination: str, start: str = "SportsComplex"
+) -> (List[str], Set[str]):
+    """
+    Searches for a path from *destination* from *start* in the
+    graph *G*. A path is a list of nodes from start you need to
+    pass to reach destination. Returns the path and a set of
+    nodes visited during the search
+    """
+    if start == destination:
+        return []
+    frontier = deque([start])
+    explored = set()
+    solution = []
+    visited = set()
+    while True:
+        if not frontier:
+            return []
+        node = frontier.popleft()
+        explored.add(node)
+        solution.append(node)
+        for adj in G.neighbors(node):
+            visited.add(adj)
+            if adj not in explored and adj not in frontier:
+                if adj == destination:
+                    return solution, visited
+                frontier.appendleft(adj)
 
 
-plt.axis("off")
-plt.show()
+if __name__ == "__main__":
+    path, visited = bfs(G, "STC")  # search for path to STC from SportsComplex
+    color_map = []
+    # color nodes that have been visited red
+    for node in G:
+        if node in visited:
+            color_map.append('#bb2205')
+        else:
+            color_map.append('#0e918c')
+    nx.draw_networkx(
+        G,
+        node_pos,
+        node_size=2000,
+        node_color=color_map,
+        edgelist=straight_edges,
+    )
+    plt.axis("off")
+    plt.show()
