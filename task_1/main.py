@@ -132,15 +132,54 @@ def bfs(
                 frontier.appendleft(adj)
 
 
+distances = {
+    "SportsComplex": 730,
+    "Siwaka": 405,
+    "Ph.1A": 380,
+    "Ph.1B": 280,
+    "STC": 213,
+    "Phase2": 210,
+    "J1": 500,
+    "Phase3": 160,
+    "Mada": 630,
+    "Parking Lot": 0,
+}
+
+
+def ucs(G: nx.Graph, destination: str, start: str = "SportsComplex"):
+    if start == destination:
+        return []
+    frontier = deque([start])
+    explored = set()
+    solution = []
+    visited = set()
+    while True:
+        if not frontier:
+            return []
+        node = frontier.popleft()
+        explored.add(node)
+        solution.append(node)
+        if node == destination:
+            visited.add(node)
+            return solution, visited
+        neighbors_dist = {}
+        for n in G.neighbors(node):
+            visited.add(node)
+            neighbors_dist[n] = distances[n]
+        shortest_neighbour = min(neighbors_dist, key=lambda n: distances[n])
+        frontier.appendleft(shortest_neighbour)
+        neighbors_dist.clear()
+
+
 if __name__ == "__main__":
-    path, visited = bfs(G, "STC")  # search for path to STC from SportsComplex
+    path, visited = ucs(G, "Parking Lot")  # search for path to STC from SportsComplex
     color_map = []
     # color nodes that have been visited red
     for node in G:
         if node in visited:
-            color_map.append('#bb2205')
+            color_map.append("#bb2205")
         else:
-            color_map.append('#0e918c')
+            color_map.append("#0e918c")
     nx.draw_networkx(
         G,
         node_pos,
@@ -148,5 +187,7 @@ if __name__ == "__main__":
         node_color=color_map,
         edgelist=straight_edges,
     )
+    edge_labels = []
+    nx.draw_networkx_edge_labels(G, node_pos, path_names)
     plt.axis("off")
     plt.show()
