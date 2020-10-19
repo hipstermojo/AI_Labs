@@ -1,6 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 from collections import deque
+import sys
 from typing import List, Set
 
 G = nx.Graph()
@@ -132,21 +133,28 @@ def bfs(
                 frontier.appendleft(adj)
 
 
-distances = {
-    "SportsComplex": 730,
-    "Siwaka": 405,
-    "Ph.1A": 380,
-    "Ph.1B": 280,
-    "STC": 213,
-    "Phase2": 210,
-    "J1": 500,
-    "Phase3": 160,
-    "Mada": 630,
-    "Parking Lot": 0,
-}
+def ucs(
+    G: nx.Graph, destination: str, start: str = "SportsComplex"
+) -> (List[str], Set[str]):
+    """
+    Searches for a path from *destination* from *start* in the
+    graph *G* using Uniform Cost Search. A path is a list of nodes from start
+    you need to pass to reach destination. Returns the path and a set of
+    nodes visited during the search
+    """
 
-
-def ucs(G: nx.Graph, destination: str, start: str = "SportsComplex"):
+    distances = {
+        "SportsComplex": 730,
+        "Siwaka": 405,
+        "Ph.1A": 380,
+        "Ph.1B": 280,
+        "STC": 213,
+        "Phase2": 210,
+        "J1": 500,
+        "Phase3": 160,
+        "Mada": 630,
+        "Parking Lot": 0,
+    }
     if start == destination:
         return []
     frontier = deque([start])
@@ -172,7 +180,12 @@ def ucs(G: nx.Graph, destination: str, start: str = "SportsComplex"):
 
 
 if __name__ == "__main__":
-    path, visited = ucs(G, "Parking Lot")  # search for path to STC from SportsComplex
+    if len(sys.argv) == 1 or sys.argv[1] == "bfs":
+        path, visited = bfs(G, "STC")
+    elif sys.argv[1] == "ucs":
+        path, visited = ucs(G, "Parking Lot")
+    else:
+        path, visited = bfs(G, "STC")
     color_map = []
     # color nodes that have been visited red
     for node in G:
