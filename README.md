@@ -6,7 +6,7 @@ This repo contains submissions for the labs in the AI unit.
 
 - Python 3.8
 
-## Running the labs
+## Running the labs.
 
 Before running the code in any of the labs, ensure you create a virtual environment
 to install dependencies. The installation command is:
@@ -14,3 +14,4 @@ to install dependencies. The installation command is:
 ```sh
 pip install -r requirements.txt
 ```
+
